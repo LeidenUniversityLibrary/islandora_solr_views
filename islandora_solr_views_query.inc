@@ -125,6 +125,13 @@ class islandora_solr_views_query extends views_plugin_query {
         }
         $params['f'][] = implode(" {$this->group_operator} ", $constructed_group_params);
       }
+      $filters = array();
+      foreach($params['f'] as $filter) {
+        $filters[] = preg_replace_callback('!(-?[a-zA-Z0-9_]+):\\\\\\[(.*?TO.*?)\\\\\\]!', function ($matches) {
+            return $matches[1] . ':' . '[' . str_replace('\\', '', $matches[2]) . ']';
+          }, $filter);
+      }
+      $params['f'] = $filters;
 
       // Add sorting.
       if (isset($this->orderby)) {
